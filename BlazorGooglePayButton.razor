@@ -1,0 +1,24 @@
+@namespace BlazorGooglePay
+
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+
+<div @ref=_googlePayButton></div>
+
+@code {
+    [Parameter]
+    public GoogleButtonType Type { get; set; } = GoogleButtonType.Short;
+    
+    ElementReference _googlePayButton;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var client = await JSRuntime.GetGooglePayClientAsync();
+        var res = await client.IsReadyToPayAsync();
+        if (res.Result)
+        {
+            var button = await client.CreateButtonAsync(Type);
+            await button.AttachToAsync(_googlePayButton);    
+        }
+    }
+}
