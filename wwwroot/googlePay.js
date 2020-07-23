@@ -162,14 +162,7 @@ function createButton(paymentsClient, onGooglePaymentButtonClicked, buttonType) 
     return browserInterop.storeObjectRef(button);
 }
 
-function attachButton(button, htmlElement) {
-    console.log(`htmlElement.appendChild is ${htmlElement.appendChild}`);
-    console.log(`button is ${button}`);
-    // const button2 = paymentsClient.createButton({
-    //     onClick: () => { console.log(`button2 is clicked !!`) },
-    //     buttonType: 'short',
-    // });
-    // console.log(`button2 is ${button2}`);
+function attachButton(htmlElement, button) {
     htmlElement.appendChild(button);
 }
 

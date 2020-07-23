@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using BrowserInterop.Extensions;
-using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace GooglePayment
@@ -16,34 +15,26 @@ namespace GooglePayment
         private IJSRuntime _jsRuntime;
         private JsRuntimeObjectRef _jsObjectRef;
 
-        public GooglePayClient(IJSRuntime jsRuntime, JsRuntimeObjectRef jsObjectRef)
+        internal GooglePayClient(IJSRuntime jsRuntime, JsRuntimeObjectRef jsObjectRef)
         {
             _jsRuntime = jsRuntime;
             _jsObjectRef = jsObjectRef;
         }
 
-        public ValueTask<JsRuntimeObjectRef> CreateButtonAsync(GoogleButtonType type)
+        public async ValueTask<GooglePayButton> CreateButtonAsync(GoogleButtonType type)
         {
-            var callback = CallBackInteropWrapper.Create(
-                OnGooglePaymentButtonClicked
-            );
-            return _jsRuntime.InvokeAsync<JsRuntimeObjectRef>(
+            var callback = CallBackInteropWrapper.Create(OnGooglePaymentButtonClicked);
+            var buttonJsObjectRef = await _jsRuntime.InvokeAsync<JsRuntimeObjectRef>(
                 "createButton",
                 _jsObjectRef,
                 callback,
-                "short");
-        }
-
-        public ValueTask AttachButtonAsync(JsRuntimeObjectRef jsObjectRef, ElementReference elemRef)
-        {
-            return _jsRuntime.InvokeVoidAsync(
-                "attachButton",
-                jsObjectRef,
-                elemRef);
+                type == GoogleButtonType.Long ? "long" : "short");
+            return new GooglePayButton(_jsRuntime, buttonJsObjectRef);
         }
         
         private async ValueTask OnGooglePaymentButtonClicked()
         {
+            Console.WriteLine("OnGooglePaymentButtonClicked");
         }
         
         public async ValueTask DisposeAsync()

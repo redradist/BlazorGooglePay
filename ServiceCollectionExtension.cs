@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GooglePayment
 {
-    public static class ServiceExtension
+    public static class ServiceCollectionExtension
     {
         public static IServiceCollection AddGooglePayment(this IServiceCollection services)
         {
