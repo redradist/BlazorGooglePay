@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <RazorLangVersion>3.0</RazorLangVersion>
+        <RootNamespace>GooglePayment</RootNamespace>
+        <Nullable>enable</Nullable>
+        <WarningsAsErrors>CS8600;CS8602;CS8603;CS8618;CS8625</WarningsAsErrors>
+        <LangVersion>8</LangVersion>
+        <AssemblyName>GooglePayment</AssemblyName>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <PackageReference Include="BrowserInterop" Version="1.0.2" />
+        <PackageReference Include="Excubo.Blazor.ScriptInjection" Version="2.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.0-preview.6.20312.15" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.0-preview.6.20312.15" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <Content Update="wwwroot\googlePay.js">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+      <Content Update="GooglePayment.razor">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
+    </ItemGroup>
+
+</Project>
