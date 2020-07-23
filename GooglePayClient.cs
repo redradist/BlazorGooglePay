@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using BrowserInterop.Extensions;
 using Microsoft.JSInterop;
 
-namespace GooglePayment
+namespace BlazorGooglePay
 {
     public struct ReadyToPayResponse
     {
@@ -25,7 +25,7 @@ namespace GooglePayment
         {
             var callback = CallBackInteropWrapper.Create(OnGooglePaymentButtonClicked);
             var buttonJsObjectRef = await _jsRuntime.InvokeAsync<JsRuntimeObjectRef>(
-                "createButton",
+                "blazorGooglePay.createButton",
                 _jsObjectRef,
                 callback,
                 type == GoogleButtonType.Long ? "long" : "short");
@@ -45,7 +45,7 @@ namespace GooglePayment
         public ValueTask<ReadyToPayResponse> IsReadyToPayAsync()
         {
             return _jsRuntime.InvokeAsync<ReadyToPayResponse>(
-                "isReadyToPay",
+                "blazorGooglePay.isReadyToPay",
                 _jsObjectRef);
         }
     }

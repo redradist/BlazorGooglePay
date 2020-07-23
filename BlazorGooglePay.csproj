@@ -3,11 +3,11 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
         <RazorLangVersion>3.0</RazorLangVersion>
-        <RootNamespace>GooglePayment</RootNamespace>
+        <RootNamespace>BlazorGooglePay</RootNamespace>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>CS8600;CS8602;CS8603;CS8618;CS8625</WarningsAsErrors>
         <LangVersion>8</LangVersion>
-        <AssemblyName>GooglePayment</AssemblyName>
+        <AssemblyName>BlazorGooglePay</AssemblyName>
     </PropertyGroup>
 
 
@@ -20,11 +20,11 @@
 
 
     <ItemGroup>
-      <Content Update="wwwroot\googlePay.js">
+      <Content Update="wwwroot\blazorGooglePay.js">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
-      <Content Update="GooglePayment.razor">
+      <Content Update="BlazorGooglePay.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
     </ItemGroup>

@@ -1,7 +1,7 @@
 using Excubo.Blazor.ScriptInjection;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GooglePayment
+namespace BlazorGooglePay
 {
     public static class ServiceCollectionExtension
     {

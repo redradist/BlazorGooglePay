@@ -1,10 +1,8 @@
-using System;
 using System.Threading.Tasks;
 using BrowserInterop.Extensions;
-using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace GooglePayment
+namespace BlazorGooglePay
 {
     public static class JSRuntimeExtensions
     {
@@ -17,7 +15,7 @@ namespace GooglePayment
                 return _client;
             }
 
-            var jsObjRef = await jsRuntime.InvokeAsync<JsRuntimeObjectRef>("getGooglePaymentsClient");
+            var jsObjRef = await jsRuntime.InvokeAsync<JsRuntimeObjectRef>("blazorGooglePay.getGooglePaymentsClient");
             _client = new GooglePayClient(jsRuntime, jsObjRef);
             return _client; 
         }

@@ -4,7 +4,7 @@ using BrowserInterop.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace GooglePayment
+namespace BlazorGooglePay
 {
     public class GooglePayButton : IAsyncDisposable
     {
@@ -19,7 +19,7 @@ namespace GooglePayment
 
         public ValueTask AttachToAsync(ElementReference elemRef)
         {
-            return _jsRuntime.InvokeVoidAsync("attachButton", elemRef, _jsObjectRef);
+            return _jsRuntime.InvokeVoidAsync("blazorGooglePay.attachButton", elemRef, _jsObjectRef);
         }
         
         private async ValueTask OnClicked()
