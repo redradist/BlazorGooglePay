@@ -1,34 +1,30 @@
+
 (async function() {
     'use strict';
-    const googlePayScriptPromise = new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        document.body.appendChild(script);
-        script.onload = resolve;
-        script.onerror = reject;
-        script.async = true;
-        script.src = 'https://pay.google.com/gp/p/js/pay.js';
-    });
-    await googlePayScriptPromise;
-
-    let browserInteropScript = null;
-    let scripts = document.getElementsByTagName('script');
-    for (let i = 0; i < scripts.length; i++) {
-        const script = scripts[i];
-        if (script.src === '_content/BrowserInterop/scripts.js') {
-            browserInteropScript = script;
-            break;
+    let dependencies = ['https://pay.google.com/gp/p/js/pay.js',
+                        '_content/BrowserInterop/scripts.js'];
+    await loadDependencies(dependencies);
+    
+    async function loadDependencies(dependencies) {
+        let scripts = document.getElementsByTagName('script');
+        for (let i = 0; i < scripts.length; i++) {
+            const script = scripts[i];
+            if (dependencies.includes(script.src)) {
+                dependencies = dependencies.filter(e => e !== script.src);
+            }
         }
-    }
-    if (browserInteropScript === null) {
-        const browserInteropScriptPromise = new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            document.body.appendChild(script);
-            script.onload = resolve;
-            script.onerror = reject;
-            script.async = true;
-            script.src = '_content/BrowserInterop/scripts.js';
-        });
-        await browserInteropScriptPromise;
+
+        for (let dep of dependencies) {
+            const depScriptPromise = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                document.body.appendChild(script);
+                script.onload = resolve;
+                script.onerror = reject;
+                script.async = true;
+                script.src = dep;
+            });
+            await depScriptPromise;
+        }
     }
     
     window.blazorGooglePay = new (function () {
