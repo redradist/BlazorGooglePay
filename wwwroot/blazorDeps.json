@@ -1,0 +1,14 @@
+[
+  {
+    "type": "script",
+    "url": "https://pay.google.com/gp/p/js/pay.js"
+  },
+  {
+    "type": "script",
+    "url": "_content/BrowserInterop/scripts.js"
+  },
+  {
+    "type": "script",
+    "url": "_content/BlazorGooglePay/blazorGooglePay.js"
+  }
+]

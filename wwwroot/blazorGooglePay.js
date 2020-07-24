@@ -1,32 +1,7 @@
-
 (async function() {
     'use strict';
-    let dependencies = ['https://pay.google.com/gp/p/js/pay.js',
-                        '_content/BrowserInterop/scripts.js'];
-    await loadDependencies(dependencies);
-    
-    async function loadDependencies(dependencies) {
-        let scripts = document.getElementsByTagName('script');
-        for (let i = 0; i < scripts.length; i++) {
-            const script = scripts[i];
-            if (dependencies.includes(script.src)) {
-                dependencies = dependencies.filter(e => e !== script.src);
-            }
-        }
 
-        for (let dep of dependencies) {
-            const depScriptPromise = new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                document.body.appendChild(script);
-                script.onload = resolve;
-                script.onerror = reject;
-                script.async = true;
-                script.src = dep;
-            });
-            await depScriptPromise;
-        }
-    }
-    
+    await window.blazorDepsPromise;
     window.blazorGooglePay = new (function () {
         'use strict';
         /**
