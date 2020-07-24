@@ -53,11 +53,12 @@ namespace BlazorGooglePay
                 currencyCode);
         }
 
-        public ValueTask ProcessPayment()
+        public ValueTask ProcessPayment(GooglePayTransactionInfo tranInfo)
         {
             return _jsRuntime.InvokeVoidAsync(
                 "blazorGooglePay.processPayment",
-                _jsObjectRef);
+                _jsObjectRef,
+                tranInfo);
         }
         
         protected virtual bool OnButtonClicked(GooglePayButton button)

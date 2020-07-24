@@ -144,23 +144,6 @@
         let paymentsClient = null;
 
         /**
-         * Configure your site's support for payment methods supported by the Google Pay
-         * API.
-         *
-         * Each member of allowedPaymentMethods should contain only the required fields,
-         * allowing reuse of this base request when determining a viewer's ability
-         * to pay and later requesting a supported payment method
-         *
-         * @returns {object} Google Pay API version, payment methods supported by the site
-         */
-        class GoogleIsReadyToPayRequest {
-            constructor(allowedPaymentMethods) {
-                Object.assign(this, baseRequest);
-                this.allowedPaymentMethods = allowedPaymentMethods;
-            }
-        }
-        
-        /**
          * Configure support for the Google Pay API
          *
          * @see {@link https://developers.google.com/pay/api/web/reference/request-objects#PaymentDataRequest|PaymentDataRequest}
@@ -210,13 +193,17 @@
                 paymentsClient.$BlazorGooglePay.setAllowedAuthMethods = setAllowedAuthMethods;
                 paymentsClient.$BlazorGooglePay.setAllowedCardNetworks = setAllowedCardNetworks;
                 paymentsClient.$BlazorGooglePay.setGatewayInfo = setGatewayInfo;
+                paymentsClient.$BlazorGooglePay.setMerchantInfo = setMerchantInfo;
                 if (environment === 'TEST') {
                     paymentsClient.$BlazorGooglePay.setGatewayInfo(
+                        'example',
+                        'exampleGatewayMerchantId');
+                    paymentsClient.$BlazorGooglePay.setMerchantInfo(
                         undefined,
-                        'Example Merchant');
+                        'Example Merchant'
+                    );
                 }
                 paymentsClient.$BlazorGooglePay.getGatewayInfo = getGatewayInfo;
-                paymentsClient.$BlazorGooglePay.setMerchantInfo = setMerchantInfo;
                 paymentsClient.$BlazorGooglePay.getMerchantInfo = getMerchantInfo;
                 paymentsClient.$BlazorGooglePay.getTokenizationSpecification = getTokenizationSpecification;
                 paymentsClientDotNetRef = browserInterop.storeObjectRef(paymentsClient);
@@ -227,7 +214,9 @@
         this.isReadyToPay = async function(paymentsClient) {
             let response = null;
             try {
-                response = await paymentsClient.isReadyToPay(new GoogleIsReadyToPayRequest([paymentsClient.$BlazorGooglePay.getBaseCardPaymentMethod()]));
+                response = await paymentsClient.isReadyToPay(new GooglePaymentDataRequest({
+                    allowedPaymentMethods: [paymentsClient.$BlazorGooglePay.getBaseCardPaymentMethod()]
+                }));
             } catch (err) {
                 // show error in developer console for debugging
                 console.error(err);
@@ -260,14 +249,16 @@
             paymentsClient.prefetchPaymentData(paymentDataRequest);
         }
 
-        /**
-         * Process payment data returned by the Google Pay API
-         *
-         * @param {object} paymentData response from Google Pay API after user approves payment
-         * @see {@link https://developers.google.com/pay/api/web/reference/response-objects#PaymentData|PaymentData object reference}
-         */
-        this.processPayment = function(paymentData) {
-            return paymentData.paymentMethodData.tokenizationData.token;
+        this.processPayment = async function (paymentsClient, transactionInfo) {
+            console.log(`transactionInfo is ${JSON.stringify(transactionInfo)}`)
+            const paymentDataRequest = paymentsClient.$BlazorGooglePay.createPaymentDataRequest(transactionInfo);
+            try {
+                let paymentData = await paymentsClient.loadPaymentData(paymentDataRequest);
+                return paymentData.paymentMethodData.tokenizationData.token;
+            } catch(err) {
+                // show error in developer console for debugging
+                console.error(err);
+            }
         }
     })();
 })();
