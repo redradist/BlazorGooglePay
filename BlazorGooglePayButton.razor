@@ -3,13 +3,13 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
 
-<div @ref=_googlePayButton></div>
+<div @ref=_googlePayDiv></div>
 
 @code {
     [Parameter]
     public GoogleButtonType Type { get; set; } = GoogleButtonType.Short;
     
-    ElementReference _googlePayButton;
+    ElementReference _googlePayDiv;
 
     protected override async Task OnInitializedAsync()
     {
@@ -18,7 +18,7 @@
         if (res.Result)
         {
             var button = await client.CreateButtonAsync(Type);
-            await button.AttachToAsync(_googlePayButton);    
+            await button.AttachToAsync(_googlePayDiv);    
         }
     }
 }

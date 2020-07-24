@@ -18,7 +18,7 @@ namespace BlazorGooglePay
 
             var jsObjRef = await jsRuntime.InvokeAsync<JsRuntimeObjectRef>(
                 "blazorGooglePay.getGooglePaymentsClient",
-                env == GooglePayEnvironment.Test ? "TEST" : "PRODUCTION");
+                env);
             _client = new GooglePayClient(jsRuntime, jsObjRef);
             return _client; 
         }
