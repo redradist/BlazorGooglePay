@@ -44,16 +44,6 @@
                 allowedCardNetworks: defaultAllowedCardNetworks
             }
         };
-
-        function getPrefetchGooglePaymentDataRequest(currencyCode) {
-            return new GooglePaymentDataRequest(
-                [this.getCardPaymentMethod()],
-                new GoogleTransactionInfo({
-                    totalPriceStatus: 'NOT_CURRENTLY_KNOWN',
-                    currencyCode: currencyCode
-                }),
-                this.getMerchantInfo());
-        }
         
         /**
          * Describe your site's support for the CARD payment method including optional
@@ -93,11 +83,12 @@
          * @see {@link https://developers.google.com/pay/api/web/reference/request-objects#gateway|PaymentMethodTokenizationSpecification}
          */
         function getTokenizationSpecification() {
+            let gatewayInfo = this.getGatewayInfo();
             return {
                 type: 'PAYMENT_GATEWAY',
                 parameters: {
-                    'gateway': this.gatewayInfo.gateway,
-                    'gatewayMerchantId': this.gatewayInfo.gatewayMerchantId
+                    'gateway': gatewayInfo.gateway,
+                    'gatewayMerchantId': gatewayInfo.gatewayMerchantId
                 }
             };
         }
@@ -130,6 +121,21 @@
             );
         }
         
+        function createPaymentDataRequest(props) {
+            return new GooglePaymentDataRequest({
+                allowedPaymentMethods: [paymentsClient.$BlazorGooglePay.getCardPaymentMethod()],
+                transactionInfo: new GoogleTransactionInfo({
+                    displayItems: props.displayItems,
+                    countryCode: props.countryCode,
+                    currencyCode: props.currencyCode,
+                    totalPriceStatus: props.totalPriceStatus,
+                    totalPrice: props.totalPrice,
+                    totalPriceLabel: props.totalPriceLabel,
+                }),
+                merchantInfo: paymentsClient.$BlazorGooglePay.getMerchantInfo()
+            });
+        }
+        
         /**
          * An initialized google.payments.api.PaymentsClient object or null if not yet set
          *
@@ -160,11 +166,11 @@
          * @see {@link https://developers.google.com/pay/api/web/reference/request-objects#PaymentDataRequest|PaymentDataRequest}
          */
         class GooglePaymentDataRequest {
-            constructor(allowedPaymentMethods, transactionInfo, merchantInfo) {
+            constructor(props) {
                 Object.assign(this, baseRequest);
-                this.allowedPaymentMethods = allowedPaymentMethods;
-                this.transactionInfo = transactionInfo;
-                this.merchantInfo = merchantInfo;
+                this.allowedPaymentMethods = props.allowedPaymentMethods;
+                this.transactionInfo = props.transactionInfo;
+                this.merchantInfo = props.merchantInfo;
             }
         }
 
@@ -200,6 +206,7 @@
                 paymentsClient.$BlazorGooglePay.baseCardPaymentMethod = Object.assign({}, defaultBaseCardPaymentMethod);
                 paymentsClient.$BlazorGooglePay.getBaseCardPaymentMethod = getBaseCardPaymentMethod;
                 paymentsClient.$BlazorGooglePay.getCardPaymentMethod = getCardPaymentMethod;
+                paymentsClient.$BlazorGooglePay.createPaymentDataRequest = createPaymentDataRequest;
                 paymentsClient.$BlazorGooglePay.setAllowedAuthMethods = setAllowedAuthMethods;
                 paymentsClient.$BlazorGooglePay.setAllowedCardNetworks = setAllowedCardNetworks;
                 paymentsClient.$BlazorGooglePay.setGatewayInfo = setGatewayInfo;
@@ -212,7 +219,6 @@
                 paymentsClient.$BlazorGooglePay.setMerchantInfo = setMerchantInfo;
                 paymentsClient.$BlazorGooglePay.getMerchantInfo = getMerchantInfo;
                 paymentsClient.$BlazorGooglePay.getTokenizationSpecification = getTokenizationSpecification;
-                paymentsClient.$BlazorGooglePay.getPrefetchGooglePaymentDataRequest = getPrefetchGooglePaymentDataRequest;
                 paymentsClientDotNetRef = browserInterop.storeObjectRef(paymentsClient);
             }
             return paymentsClientDotNetRef;
@@ -247,7 +253,10 @@
          * @see {@link https://developers.google.com/pay/api/web/reference/client#prefetchPaymentData|prefetchPaymentData()}
          */
         this.prefetchGooglePaymentData = function(paymentsClient, currencyCode) {
-            const paymentDataRequest = paymentsClient.$BlazorGooglePay.getPrefetchGooglePaymentDataRequest(currencyCode);
+            const paymentDataRequest = paymentsClient.$BlazorGooglePay.createPaymentDataRequest({
+                totalPriceStatus: 'NOT_CURRENTLY_KNOWN',
+                currencyCode: currencyCode,
+            });
             paymentsClient.prefetchPaymentData(paymentDataRequest);
         }
 
