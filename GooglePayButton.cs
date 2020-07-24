@@ -9,27 +9,21 @@ namespace BlazorGooglePay
     public class GooglePayButton : IAsyncDisposable
     {
         private IJSRuntime _jsRuntime;
-        private JsRuntimeObjectRef _jsObjectRef;
-        
-        internal GooglePayButton(IJSRuntime jsRuntime, JsRuntimeObjectRef jsObjectRef)
+        internal JsRuntimeObjectRef JsObjectRef { get; set; } = null!;
+
+        internal GooglePayButton(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
-            _jsObjectRef = jsObjectRef;
         }
 
         public ValueTask AttachToAsync(ElementReference elemRef)
         {
-            return _jsRuntime.InvokeVoidAsync("blazorGooglePay.attachButton", elemRef, _jsObjectRef);
-        }
-        
-        private async ValueTask OnClicked()
-        {
-            
+            return _jsRuntime.InvokeVoidAsync("blazorGooglePay.attachButton", elemRef, JsObjectRef);
         }
         
         public async ValueTask DisposeAsync()
         {
-            await _jsObjectRef.DisposeAsync();
+            await JsObjectRef.DisposeAsync();
         }
     }
 }

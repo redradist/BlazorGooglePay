@@ -18,17 +18,21 @@ namespace BlazorGooglePay
 
         public async ValueTask<GooglePayButton> CreateButtonAsync(GoogleButtonType type)
         {
-            Console.WriteLine("CreateButtonAsync");
-            var callback = CallBackInteropWrapper.Create(OnGooglePaymentButtonClicked);
-            var buttonJsObjectRef = await _jsRuntime.InvokeAsync<JsRuntimeObjectRef>(
+            var button = new GooglePayButton(_jsRuntime);
+            var callback = CallBackInteropWrapper.Create(async () =>
+            {
+                await OnGooglePaymentButtonClicked(button);
+            },
+            serializationSpec: false);
+            button.JsObjectRef = await _jsRuntime.InvokeAsync<JsRuntimeObjectRef>(
                 "blazorGooglePay.createButton",
                 _jsObjectRef,
                 callback,
                 type);
-            return new GooglePayButton(_jsRuntime, buttonJsObjectRef);
+            return button;
         }
         
-        private async ValueTask OnGooglePaymentButtonClicked()
+        private async ValueTask OnGooglePaymentButtonClicked(GooglePayButton button)
         {
             Console.WriteLine("OnGooglePaymentButtonClicked");
         }
