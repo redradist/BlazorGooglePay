@@ -109,16 +109,16 @@
             return {
                 type: 'PAYMENT_GATEWAY',
                 parameters: {
-                    'gateway': gatewayInfo.gateway,
-                    'gatewayMerchantId': gatewayInfo.gatewayMerchantId
+                    'gateway': gatewayInfo.gateway === null ? undefined : gatewayInfo.gateway,
+                    'gatewayMerchantId': gatewayInfo.gatewayMerchantId === null ? undefined : gatewayInfo.gatewayMerchantId
                 }
             };
         }
         
         function setMerchantInfo(merchantInfo) {
             this.merchantInfo = {
-                merchantId: merchantInfo.merchantId,
-                merchantName: merchantInfo.merchantName,
+                merchantId: merchantInfo.merchantId === null ? undefined : merchantInfo.merchantId,
+                merchantName: merchantInfo.merchantName === null ? undefined : merchantInfo.merchantName,
             };
         }
         
