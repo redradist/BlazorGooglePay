@@ -62,12 +62,56 @@ namespace BlazorGooglePay
                 authMethods);
         }
         
+        public ValueTask<string[]> GetAllowedAuthMethodsAsync()
+        {
+            return _jsRuntime.InvokeAsync<string[]>(
+                "blazorGooglePay.getAllowedAuthMethods",
+                _jsObjectRef);
+        }
+        
         public ValueTask SetAllowedCardNetworksAsync(params string[] cardNetworks)
         {
             return _jsRuntime.InvokeVoidAsync(
                 "blazorGooglePay.setAllowedCardNetworks",
                 _jsObjectRef,
                 cardNetworks);
+        }
+
+        public ValueTask<string[]> GetAllowedCardNetworksAsync()
+        {
+            return _jsRuntime.InvokeAsync<string[]>(
+                "blazorGooglePay.getAllowedCardNetworks",
+                _jsObjectRef);
+        }
+        
+        public ValueTask<GooglePayGatewayInfo> GetGatewayInfoAsync()
+        {
+            return _jsRuntime.InvokeAsync<GooglePayGatewayInfo>(
+                "blazorGooglePay.getGatewayInfo",
+                _jsObjectRef);
+        }
+        
+        public ValueTask SetGatewayInfoAsync(GooglePayGatewayInfo gatewayInfo)
+        {
+            return _jsRuntime.InvokeVoidAsync(
+                "blazorGooglePay.setGatewayInfo",
+                _jsObjectRef,
+                gatewayInfo);
+        }
+        
+        public ValueTask<GooglePayMerchantInfo> GetMerchantInfoAsync()
+        {
+            return _jsRuntime.InvokeAsync<GooglePayMerchantInfo>(
+                "blazorGooglePay.getMerchantInfo",
+                _jsObjectRef);
+        }
+        
+        public ValueTask SetMerchantInfoAsync(GooglePayMerchantInfo merchantInfo)
+        {
+            return _jsRuntime.InvokeVoidAsync(
+                "blazorGooglePay.setMerchantInfo",
+                _jsObjectRef,
+                merchantInfo);
         }
         
         public ValueTask ProcessPayment(GooglePayTransactionInfo tranInfo)

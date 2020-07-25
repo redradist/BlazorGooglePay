@@ -53,8 +53,16 @@
             this.baseCardPaymentMethod.parameters.allowedAuthMethods = allowedAuthMethods;
         }
 
+        function getAllowedAuthMethods() {
+            return Array.from(this.baseCardPaymentMethod.parameters.allowedAuthMethods);
+        }
+        
         function setAllowedCardNetworks(allowedCardNetworks) {
             this.baseCardPaymentMethod.parameters.allowedCardNetworks = allowedCardNetworks;
+        }
+
+        function getAllowedCardNetworks() {
+            return Array.from(this.baseCardPaymentMethod.parameters.allowedCardNetworks);
         }
         
         /**
@@ -70,6 +78,20 @@
                 {
                     tokenizationSpecification: this.getTokenizationSpecification()
                 }
+            );
+        }
+
+        function setGatewayInfo(gatewayInfo) {
+            this.gatewayInfo = {
+                gateway: gatewayInfo.gateway,
+                gatewayMerchantId: gatewayInfo.gatewayMerchantId,
+            };
+        }
+
+        function getGatewayInfo() {
+            return Object.assign(
+                {},
+                this.gatewayInfo
             );
         }
         
@@ -93,24 +115,10 @@
             };
         }
         
-        function setGatewayInfo(gateway, gatewayMerchantId) {
-            this.gatewayInfo = {
-                gateway: gateway,
-                gatewayMerchantId: gatewayMerchantId,
-            };
-        }
-
-        function getGatewayInfo() {
-            return Object.assign(
-                {},
-                this.gatewayInfo
-            );
-        }
-        
-        function setMerchantInfo(merchantId, merchantName) {
+        function setMerchantInfo(merchantInfo) {
             this.merchantInfo = {
-                merchantId: merchantId,
-                merchantName: merchantName,
+                merchantId: merchantInfo.merchantId,
+                merchantName: merchantInfo.merchantName,
             };
         }
         
@@ -191,17 +199,20 @@
                 paymentsClient.$BlazorGooglePay.getCardPaymentMethod = getCardPaymentMethod;
                 paymentsClient.$BlazorGooglePay.createPaymentDataRequest = createPaymentDataRequest;
                 paymentsClient.$BlazorGooglePay.setAllowedAuthMethods = setAllowedAuthMethods;
+                paymentsClient.$BlazorGooglePay.getAllowedAuthMethods = getAllowedAuthMethods;
                 paymentsClient.$BlazorGooglePay.setAllowedCardNetworks = setAllowedCardNetworks;
+                paymentsClient.$BlazorGooglePay.getAllowedCardNetworks = getAllowedCardNetworks;
                 paymentsClient.$BlazorGooglePay.setGatewayInfo = setGatewayInfo;
                 paymentsClient.$BlazorGooglePay.setMerchantInfo = setMerchantInfo;
                 if (environment === 'TEST') {
-                    paymentsClient.$BlazorGooglePay.setGatewayInfo(
-                        'example',
-                        'exampleGatewayMerchantId');
-                    paymentsClient.$BlazorGooglePay.setMerchantInfo(
-                        undefined,
-                        'Example Merchant'
-                    );
+                    paymentsClient.$BlazorGooglePay.setGatewayInfo({
+                        gateway: 'example',
+                        gatewayMerchantId: 'exampleGatewayMerchantId'
+                    });
+                    paymentsClient.$BlazorGooglePay.setMerchantInfo({
+                        merchantId: undefined,
+                        merchantName: 'Example Merchant'
+                    });
                 }
                 paymentsClient.$BlazorGooglePay.getGatewayInfo = getGatewayInfo;
                 paymentsClient.$BlazorGooglePay.getMerchantInfo = getMerchantInfo;
@@ -240,8 +251,32 @@
             paymentsClient.$BlazorGooglePay.setAllowedAuthMethods(authMethods);
         }
 
+        this.getAllowedAuthMethods = function(paymentsClient) {
+            return paymentsClient.$BlazorGooglePay.getAllowedAuthMethods();
+        }
+        
         this.setAllowedCardNetworks = function(paymentsClient, cardNetworks) {
             paymentsClient.$BlazorGooglePay.setAllowedCardNetworks(cardNetworks);
+        }
+
+        this.getAllowedCardNetworks = function(paymentsClient) {
+            return paymentsClient.$BlazorGooglePay.getAllowedCardNetworks();
+        }
+        
+        this.setGatewayInfo = function (paymentsClient, gatewayInfo) {
+            paymentsClient.$BlazorGooglePay.setGatewayInfo(gatewayInfo);
+        }
+        
+        this.getGatewayInfo = function (paymentsClient) {
+            return paymentsClient.$BlazorGooglePay.getGatewayInfo();
+        }
+
+        this.setMerchantInfo = function (paymentsClient, merchantInfo) {
+            paymentsClient.$BlazorGooglePay.setMerchantInfo(merchantInfo);
+        }
+
+        this.getMerchantInfo = function (paymentsClient) {
+            return paymentsClient.$BlazorGooglePay.getMerchantInfo();
         }
         
         /**
