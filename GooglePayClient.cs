@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BrowserInterop.Extensions;
 using Microsoft.JSInterop;
@@ -9,7 +10,7 @@ namespace BlazorGooglePay
     {
         private IJSRuntime _jsRuntime;
         private JsRuntimeObjectRef _jsObjectRef;
-
+        
         public event Func<object, GooglePayButton, bool>? ButtonClicked;
         
         internal GooglePayClient(IJSRuntime jsRuntime, JsRuntimeObjectRef jsObjectRef)
@@ -23,10 +24,10 @@ namespace BlazorGooglePay
             var button = new GooglePayButton(_jsRuntime);
             var callback = CallBackInteropWrapper.Create(async () =>
             {
-                var isHandled = OnButtonClicked(button);
+                var isHandled = await OnButtonClicked(button);
                 if (!isHandled)
                 {
-                    button.OnClicked();
+                    await button.OnClicked();
                 }
             },
             serializationSpec: false);
@@ -53,6 +54,22 @@ namespace BlazorGooglePay
                 currencyCode);
         }
 
+        public ValueTask SetAllowedAuthMethodsAsync(params string[] authMethods)
+        {
+            return _jsRuntime.InvokeVoidAsync(
+                "blazorGooglePay.setAllowedAuthMethods",
+                _jsObjectRef,
+                authMethods);
+        }
+        
+        public ValueTask SetAllowedCardNetworksAsync(params string[] cardNetworks)
+        {
+            return _jsRuntime.InvokeVoidAsync(
+                "blazorGooglePay.setAllowedCardNetworks",
+                _jsObjectRef,
+                cardNetworks);
+        }
+        
         public ValueTask ProcessPayment(GooglePayTransactionInfo tranInfo)
         {
             return _jsRuntime.InvokeVoidAsync(
@@ -61,7 +78,7 @@ namespace BlazorGooglePay
                 tranInfo);
         }
         
-        protected virtual bool OnButtonClicked(GooglePayButton button)
+        protected virtual async ValueTask<bool> OnButtonClicked(GooglePayButton button)
         {
             if (ButtonClicked?.GetInvocationList() != null)
             {

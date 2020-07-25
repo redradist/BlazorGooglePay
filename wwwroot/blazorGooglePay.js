@@ -44,6 +44,18 @@
                 allowedCardNetworks: defaultAllowedCardNetworks
             }
         };
+
+        function getBaseCardPaymentMethod() {
+            return Object.assign({}, this.baseCardPaymentMethod);
+        }
+
+        function setAllowedAuthMethods(allowedAuthMethods) {
+            this.baseCardPaymentMethod.parameters.allowedAuthMethods = allowedAuthMethods;
+        }
+
+        function setAllowedCardNetworks(allowedCardNetworks) {
+            this.baseCardPaymentMethod.parameters.allowedCardNetworks = allowedCardNetworks;
+        }
         
         /**
          * Describe your site's support for the CARD payment method including optional
@@ -59,18 +71,6 @@
                     tokenizationSpecification: this.getTokenizationSpecification()
                 }
             );
-        }
-
-        function getBaseCardPaymentMethod() {
-            return Object.assign({}, this.baseCardPaymentMethod);
-        }
-
-        function setAllowedAuthMethods(allowedAuthMethods) {
-            this.baseCardPaymentMethod.allowedAuthMethods = allowedAuthMethods;
-        }
-
-        function setAllowedCardNetworks(allowedCardNetworks) {
-            this.baseCardPaymentMethod.allowedCardNetworks = allowedCardNetworks;
         }
         
         /**
@@ -236,6 +236,14 @@
             htmlElement.appendChild(button);
         }
 
+        this.setAllowedAuthMethods = function(paymentsClient, authMethods) {
+            paymentsClient.$BlazorGooglePay.setAllowedAuthMethods(authMethods);
+        }
+
+        this.setAllowedCardNetworks = function(paymentsClient, cardNetworks) {
+            paymentsClient.$BlazorGooglePay.setAllowedCardNetworks(cardNetworks);
+        }
+        
         /**
          * Prefetch payment data to improve performance
          *

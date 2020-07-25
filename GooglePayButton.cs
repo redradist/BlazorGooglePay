@@ -23,7 +23,7 @@ namespace BlazorGooglePay
             return _jsRuntime.InvokeVoidAsync("blazorGooglePay.attachButton", elemRef, JsObjectRef);
         }
 
-        internal void OnClicked()
+        internal async ValueTask OnClicked()
         {
             if (Clicked?.GetInvocationList() != null)
             {
