@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using BrowserInterop.Extensions;
 using Microsoft.JSInterop;
 
-namespace BlazorGooglePay
+namespace Blazor.GooglePay
 {
     public class GooglePayClient : IAsyncDisposable
     {

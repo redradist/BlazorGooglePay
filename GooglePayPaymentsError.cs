@@ -1,6 +1,4 @@
-using System.Text.Json.Serialization;
-
-namespace BlazorGooglePay
+namespace Blazor.GooglePay
 {
     public class GooglePayPaymentsError
     {

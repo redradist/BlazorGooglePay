@@ -1,4 +1,4 @@
-namespace BlazorGooglePay
+namespace Blazor.GooglePay
 {
     public class GooglePayMerchantInfo
     {

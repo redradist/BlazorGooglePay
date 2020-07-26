@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace BlazorGooglePay
+namespace Blazor.GooglePay
 {
     public class GooglePayShippingAddressOptions
     {

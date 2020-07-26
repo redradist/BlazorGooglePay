@@ -4,7 +4,7 @@ using BrowserInterop.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace BlazorGooglePay
+namespace Blazor.GooglePay
 {
     public class GooglePayButton : IAsyncDisposable
     {

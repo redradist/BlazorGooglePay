@@ -2,7 +2,7 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace BlazorGooglePay
+namespace Blazor.GooglePay
 {
     [JsonConverter(typeof(GooglePayStatusCodeJsonConverter))]
     public enum GooglePayStatusCode
