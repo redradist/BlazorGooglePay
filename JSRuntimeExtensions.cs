@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using BrowserInterop.Extensions;
 using Microsoft.JSInterop;
 
-namespace Blazor.GooglePay
+namespace BlazorGooglePay
 {
     using ProcessPaymentCallback = Func<string, ValueTask>;
     using DisplayShippingOptionsCallback = Func<GooglePayShippingAddress, ValueTask<GooglePayDisplayShippingOptions>>;

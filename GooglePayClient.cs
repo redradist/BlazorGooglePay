@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using BrowserInterop.Extensions;
 using Microsoft.JSInterop;
 
-namespace Blazor.GooglePay
+namespace BlazorGooglePay
 {
     public class GooglePayClient : IAsyncDisposable
     {

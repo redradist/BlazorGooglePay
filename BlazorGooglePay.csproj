@@ -3,11 +3,9 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
         <RazorLangVersion>3.0</RazorLangVersion>
-        <RootNamespace>Blazor.GooglePay</RootNamespace>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>CS8600;CS8602;CS8603;CS8618;CS8625</WarningsAsErrors>
         <LangVersion>8</LangVersion>
-        <AssemblyName>Blazor.GooglePay</AssemblyName>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageVersion>0.1.0</PackageVersion>
         <Title>BlazorGooglePay</Title>
