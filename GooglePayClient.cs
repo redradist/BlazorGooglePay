@@ -11,7 +11,7 @@ namespace BlazorGooglePay
         private IJSRuntime _jsRuntime;
         private JsRuntimeObjectRef _jsObjectRef;
         
-        public event Func<object, GooglePayButton, bool>? ButtonClicked;
+        public event Func<object, GooglePayButton, ValueTask<bool>>? ButtonClicked;
         
         internal GooglePayClient(IJSRuntime jsRuntime, JsRuntimeObjectRef jsObjectRef)
         {
@@ -114,12 +114,15 @@ namespace BlazorGooglePay
                 merchantInfo);
         }
         
-        public ValueTask ProcessPayment(GooglePayTransactionInfo tranInfo)
+        public ValueTask<string?> LoadPaymentAsync(
+            GooglePayTransactionInfo tranInfo,
+            GooglePayPaymentOptions? paymentOptions = null)
         {
-            return _jsRuntime.InvokeVoidAsync(
-                "blazorGooglePay.processPayment",
+            return _jsRuntime.InvokeAsync<string?>(
+                "blazorGooglePay.loadPaymentData",
                 _jsObjectRef,
-                tranInfo);
+                tranInfo,
+                paymentOptions);
         }
         
         protected virtual async ValueTask<bool> OnButtonClicked(GooglePayButton button)
@@ -137,7 +140,7 @@ namespace BlazorGooglePay
             }
             return false;
         }
-        
+
         public async ValueTask DisposeAsync()
         {
             await _jsObjectRef.DisposeAsync();

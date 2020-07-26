@@ -128,29 +128,35 @@
                 this.merchantInfo
             );
         }
-        
-        function createPaymentDataRequest(props) {
-            return new GooglePaymentDataRequest({
-                allowedPaymentMethods: [paymentsClient.$BlazorGooglePay.getCardPaymentMethod()],
-                transactionInfo: new GoogleTransactionInfo({
-                    displayItems: props.displayItems,
-                    countryCode: props.countryCode,
-                    currencyCode: props.currencyCode,
-                    totalPriceStatus: props.totalPriceStatus,
-                    totalPrice: props.totalPrice,
-                    totalPriceLabel: props.totalPriceLabel,
-                }),
-                merchantInfo: paymentsClient.$BlazorGooglePay.getMerchantInfo()
-            });
+
+        function createPaymentDataRequest(paymentsClient, tranProps, customPaymentProps) {
+            let props = Object.assign(
+                {},
+                {
+                    allowedPaymentMethods: [paymentsClient.$BlazorGooglePay.getCardPaymentMethod()],
+                    transactionInfo: new GoogleTransactionInfo(tranProps),
+                    merchantInfo: paymentsClient.$BlazorGooglePay.getMerchantInfo(),
+                },
+                customPaymentProps);
+            return new GooglePaymentDataRequest(props);
+        }
+
+        function setDisplayShippingOptions(paymentsClient, displayShippingOptions) {
+            this.displayShippingOptions = displayShippingOptions;
+        }
+
+        function getDisplayShippingOptions(paymentsClient, displayShippingOptions) {
+            return this.displayShippingOptions;
         }
         
-        /**
-         * An initialized google.payments.api.PaymentsClient object or null if not yet set
-         *
-         * @see {@link getGooglePaymentsClient}
-         */
-        let paymentsClient = null;
+        function setCalculateTransactionInfo(paymentsClient, transactionInfo) {
+            this.transactionInfo = transactionInfo;
+        }
 
+        function getCalculateTransactionInfo(paymentsClient, transactionInfo) {
+            return this.transactionInfo;
+        }
+        
         /**
          * Configure support for the Google Pay API
          *
@@ -158,10 +164,7 @@
          */
         class GooglePaymentDataRequest {
             constructor(props) {
-                Object.assign(this, baseRequest);
-                this.allowedPaymentMethods = props.allowedPaymentMethods;
-                this.transactionInfo = props.transactionInfo;
-                this.merchantInfo = props.merchantInfo;
+                Object.assign(this, baseRequest, props);
             }
         }
 
@@ -181,45 +184,81 @@
             }
         }
 
-        let paymentsClientDotNetRef = null;
         /**
          * Return an active PaymentsClient or initialize
          *
          * @see {@link https://developers.google.com/pay/api/web/reference/client#PaymentsClient|PaymentsClient constructor}
          * @returns {google.payments.api.PaymentsClient} Google Pay API client
          */
-        this.getGooglePaymentsClient = function(environment) {
-            if (paymentsClient === null) {
-                paymentsClient = new google.payments.api.PaymentsClient({
-                    environment: environment
-                });
-                paymentsClient.$BlazorGooglePay = {};
-                paymentsClient.$BlazorGooglePay.baseCardPaymentMethod = Object.assign({}, defaultBaseCardPaymentMethod);
-                paymentsClient.$BlazorGooglePay.getBaseCardPaymentMethod = getBaseCardPaymentMethod;
-                paymentsClient.$BlazorGooglePay.getCardPaymentMethod = getCardPaymentMethod;
-                paymentsClient.$BlazorGooglePay.createPaymentDataRequest = createPaymentDataRequest;
-                paymentsClient.$BlazorGooglePay.setAllowedAuthMethods = setAllowedAuthMethods;
-                paymentsClient.$BlazorGooglePay.getAllowedAuthMethods = getAllowedAuthMethods;
-                paymentsClient.$BlazorGooglePay.setAllowedCardNetworks = setAllowedCardNetworks;
-                paymentsClient.$BlazorGooglePay.getAllowedCardNetworks = getAllowedCardNetworks;
-                paymentsClient.$BlazorGooglePay.setGatewayInfo = setGatewayInfo;
-                paymentsClient.$BlazorGooglePay.setMerchantInfo = setMerchantInfo;
-                if (environment === 'TEST') {
-                    paymentsClient.$BlazorGooglePay.setGatewayInfo({
-                        gateway: 'example',
-                        gatewayMerchantId: 'exampleGatewayMerchantId'
-                    });
-                    paymentsClient.$BlazorGooglePay.setMerchantInfo({
-                        merchantId: undefined,
-                        merchantName: 'Example Merchant'
-                    });
+        this.getGooglePaymentsClient = function(
+                environment,
+                merchantInfo,
+                processPaymentCallback,
+                displayShippingOptionsCallback,
+                calculateTransactionInfoCallback) {
+            let paymentsClient;
+            let paymentsClientProps = {
+                environment: environment,
+            };
+            console.log(`environment is ${environment}`);
+            if (processPaymentCallback) {
+                console.log(`processPaymentCallback is ${processPaymentCallback}`);
+                if (paymentsClientProps.paymentDataCallbacks === undefined) {
+                    paymentsClientProps.paymentDataCallbacks = {};
                 }
-                paymentsClient.$BlazorGooglePay.getGatewayInfo = getGatewayInfo;
-                paymentsClient.$BlazorGooglePay.getMerchantInfo = getMerchantInfo;
-                paymentsClient.$BlazorGooglePay.getTokenizationSpecification = getTokenizationSpecification;
-                paymentsClientDotNetRef = browserInterop.storeObjectRef(paymentsClient);
+                paymentsClientProps.paymentDataCallbacks.onPaymentAuthorized = (paymentData) => {
+                    this.onPaymentAuthorized(paymentsClient, paymentData)
+                };
             }
-            return paymentsClientDotNetRef;
+            if (displayShippingOptionsCallback && calculateTransactionInfoCallback) {
+                console.log(`displayShippingOptionsCallback is ${displayShippingOptionsCallback}`);
+                console.log(`calculateTransactionInfoCallback is ${calculateTransactionInfoCallback}`);
+                if (paymentsClientProps.paymentDataCallbacks === undefined) {
+                    paymentsClientProps.paymentDataCallbacks = {};
+                }
+                paymentsClientProps.paymentDataCallbacks.onPaymentDataChanged = (intermediatePaymentData) => {
+                    this.onPaymentDataChanged(paymentsClient, intermediatePaymentData)
+                };
+            }
+
+            console.log(`paymentsClientProps is ${paymentsClientProps}`);
+            paymentsClient = new google.payments.api.PaymentsClient(paymentsClientProps);
+            paymentsClient.$BlazorGooglePay = {};
+            paymentsClient.$BlazorGooglePay.paymentAuthorized = {
+                processPaymentCallback
+            };
+            paymentsClient.$BlazorGooglePay.paymentDataChanged = {
+                displayShippingOptionsCallback,
+                calculateTransactionInfoCallback,
+            };
+            paymentsClient.$BlazorGooglePay.baseCardPaymentMethod = Object.assign({}, defaultBaseCardPaymentMethod);
+            paymentsClient.$BlazorGooglePay.getBaseCardPaymentMethod = getBaseCardPaymentMethod;
+            paymentsClient.$BlazorGooglePay.getCardPaymentMethod = getCardPaymentMethod;
+            paymentsClient.$BlazorGooglePay.createPaymentDataRequest = createPaymentDataRequest;
+            paymentsClient.$BlazorGooglePay.setAllowedAuthMethods = setAllowedAuthMethods;
+            paymentsClient.$BlazorGooglePay.getAllowedAuthMethods = getAllowedAuthMethods;
+            paymentsClient.$BlazorGooglePay.setAllowedCardNetworks = setAllowedCardNetworks;
+            paymentsClient.$BlazorGooglePay.getAllowedCardNetworks = getAllowedCardNetworks;
+            paymentsClient.$BlazorGooglePay.setGatewayInfo = setGatewayInfo;
+            paymentsClient.$BlazorGooglePay.setMerchantInfo = setMerchantInfo;
+            if (environment === 'TEST') {
+                paymentsClient.$BlazorGooglePay.setGatewayInfo({
+                    gateway: 'example',
+                    gatewayMerchantId: 'exampleGatewayMerchantId'
+                });
+                paymentsClient.$BlazorGooglePay.setMerchantInfo({
+                    merchantId: undefined,
+                    merchantName: 'Example Merchant'
+                });
+            }
+            paymentsClient.$BlazorGooglePay.getGatewayInfo = getGatewayInfo;
+            paymentsClient.$BlazorGooglePay.getMerchantInfo = getMerchantInfo;
+            paymentsClient.$BlazorGooglePay.getTokenizationSpecification = getTokenizationSpecification;
+            paymentsClient.$BlazorGooglePay.setDisplayShippingOptions = setDisplayShippingOptions;
+            paymentsClient.$BlazorGooglePay.getDisplayShippingOptions = getDisplayShippingOptions;
+            paymentsClient.$BlazorGooglePay.setCalculateTransactionInfo = setCalculateTransactionInfo;
+            paymentsClient.$BlazorGooglePay.getCalculateTransactionInfo = getCalculateTransactionInfo;
+            return browserInterop.storeObjectRef(paymentsClient);
         }
 
         this.isReadyToPay = async function(paymentsClient) {
@@ -278,6 +317,14 @@
         this.getMerchantInfo = function (paymentsClient) {
             return paymentsClient.$BlazorGooglePay.getMerchantInfo();
         }
+
+        this.setDisplayShippingOptions = function (paymentsClient, displayShippingOptions) {
+            paymentsClient.$BlazorGooglePay.setDisplayShippingOptions(displayShippingOptions);
+        }
+
+        this.setCalculateTransactionInfo = function (paymentsClient, transactionInfo) {
+            paymentsClient.$BlazorGooglePay.setCalculateTransactionInfo(transactionInfo);
+        }
         
         /**
          * Prefetch payment data to improve performance
@@ -285,22 +332,103 @@
          * @see {@link https://developers.google.com/pay/api/web/reference/client#prefetchPaymentData|prefetchPaymentData()}
          */
         this.prefetchGooglePaymentData = function(paymentsClient, currencyCode) {
-            const paymentDataRequest = paymentsClient.$BlazorGooglePay.createPaymentDataRequest({
+            const paymentDataRequest = paymentsClient.$BlazorGooglePay.createPaymentDataRequest(paymentsClient,{
                 totalPriceStatus: 'NOT_CURRENTLY_KNOWN',
                 currencyCode: currencyCode,
             });
             paymentsClient.prefetchPaymentData(paymentDataRequest);
         }
 
-        this.processPayment = async function (paymentsClient, transactionInfo) {
-            console.log(`transactionInfo is ${JSON.stringify(transactionInfo)}`)
-            const paymentDataRequest = paymentsClient.$BlazorGooglePay.createPaymentDataRequest(transactionInfo);
+        this.loadPaymentData = async function (paymentsClient, transactionInfoProps, customPaymentProps) {
+            console.log(`loadPaymentData: transactionInfoProps is ${JSON.stringify(transactionInfoProps)}`)
+            const paymentDataRequest = paymentsClient.$BlazorGooglePay.createPaymentDataRequest(
+                paymentsClient,
+                transactionInfoProps,
+                customPaymentProps);
             try {
                 let paymentData = await paymentsClient.loadPaymentData(paymentDataRequest);
-                return paymentData.paymentMethodData.tokenizationData.token;
+                console.log(`loadPaymentData: paymentData is ${JSON.stringify(paymentData.paymentMethodData.tokenizationData.token)}`)
+                if (paymentData) {
+                    return paymentData.paymentMethodData.tokenizationData.token;    
+                }
             } catch(err) {
+                console.log(`loadPaymentData: err is ${JSON.stringify(err)}`)
                 // show error in developer console for debugging
                 console.error(err);
+            }
+        }
+
+        this.onPaymentAuthorized = async function(paymentsClient, paymentData) {
+            try {
+                let paymentToken = paymentData.paymentMethodData.tokenizationData.token;
+                console.log(`paymentData is ${paymentData}`);
+                await paymentsClient.$BlazorGooglePay.paymentAuthorized.paymentAuthorized(paymentToken);
+                return { transactionState: 'SUCCESS' };
+            } catch (e) {
+                return {
+                    transactionState: 'ERROR',
+                    error: {
+                        intent: 'PAYMENT_AUTHORIZATION',
+                        message: 'Insufficient funds',
+                        reason: 'PAYMENT_DATA_INVALID'
+                    }
+                };
+            }
+        }
+
+        function getGoogleUnserviceableAddressError() {
+            return {
+                reason: "SHIPPING_ADDRESS_UNSERVICEABLE",
+                message: "Cannot ship to the selected address",
+                intent: "SHIPPING_ADDRESS"
+            };
+        }
+
+        this.onPaymentDataChanged = async function(paymentsClient, intermediatePaymentData) {
+            try {
+                console.log(`intermediatePaymentData is ${JSON.stringify(intermediatePaymentData)}`);
+                let shippingAddress = intermediatePaymentData.shippingAddress;
+                let shippingOptionData = intermediatePaymentData.shippingOptionData;
+                let paymentDataRequestUpdate = {};
+
+                if (intermediatePaymentData.callbackTrigger === "INITIALIZE" ||
+                    intermediatePaymentData.callbackTrigger === "SHIPPING_ADDRESS") {
+                    if (shippingAddress.administrativeArea === "NJ")  {
+                        paymentDataRequestUpdate.error = getGoogleUnserviceableAddressError();
+                    } else {
+                        paymentsClient.$BlazorGooglePay.paymentDataChanged.displayShippingOptionsCallback({
+                            jsObjectRef: paymentsClient,
+                            shippingAddress,
+                        });
+                        console.log(`getDisplayShippingOptions is getDisplayShippingOptions`);
+                        paymentDataRequestUpdate.newShippingOptionParameters = paymentsClient.$BlazorGooglePay.getDisplayShippingOptions();
+                        let selectedShippingOptionId = paymentDataRequestUpdate.newShippingOptionParameters.defaultSelectedOptionId;
+                        console.log(`calculateTransactionInfoCallback is calculateTransactionInfoCallback`);
+                        paymentsClient.$BlazorGooglePay.paymentDataChanged.calculateTransactionInfoCallback({
+                            jsObjectRef: paymentsClient,
+                            selectedShippingOption: {
+                                shippingAddress,
+                                shippingOptionId: selectedShippingOptionId
+                            }
+                        });
+                        console.log(`getCalculateTransactionInfo is getCalculateTransactionInfo`);
+                        paymentDataRequestUpdate.newTransactionInfo = paymentsClient.$BlazorGooglePay.getCalculateTransactionInfo();
+                    }
+                } else if (intermediatePaymentData.callbackTrigger === "SHIPPING_OPTION") {
+                    console.log(`calculateTransactionInfoCallback is calculateTransactionInfoCallback`);
+                    paymentsClient.$BlazorGooglePay.paymentDataChanged.calculateTransactionInfoCallback({
+                        jsObjectRef: paymentsClient,
+                        selectedShippingOption: {
+                            shippingAddress,
+                            shippingOptionId: shippingOptionData.id
+                        }
+                    });
+                    paymentDataRequestUpdate.newTransactionInfo = paymentsClient.$BlazorGooglePay.getCalculateTransactionInfo();
+                }
+
+                return paymentDataRequestUpdate;
+            } catch(e) {
+                console.log(`e is ${e}`);
             }
         }
     })();
