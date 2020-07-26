@@ -10,6 +10,16 @@
         <AssemblyName>Blazor.GooglePay</AssemblyName>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageVersion>0.1.0</PackageVersion>
+        <Title>BlazorGooglePay</Title>
+        <Authors>redradist</Authors>
+        <Description>Blazor wrapper around GooglePay Js library</Description>
+        <PackageLicenseUrl>https://github.com/redradist/Blazor.GooglePay/blob/master/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/redradist/Blazor.GooglePay</RepositoryUrl>
+        <PackageTags>blazor, googlepay</PackageTags>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <Copyright>2020-Present Denis Kotov, redradist@gmail.com</Copyright>
+        <PackageProjectUrl>https://github.com/redradist/Blazor.GooglePay</PackageProjectUrl>
+        <PackageId>BlazorGooglePay</PackageId>
     </PropertyGroup>
 
 
