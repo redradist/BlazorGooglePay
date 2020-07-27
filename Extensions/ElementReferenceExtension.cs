@@ -6,7 +6,7 @@ namespace BlazorGooglePay.Extensions
 {
     public static class ElementReferenceExtension
     {
-        public static ValueTask AppendChild(this ElementReference elemRef, GooglePayButton button)
+        public static ValueTask AppendChildAsync(this ElementReference elemRef, GooglePayButton button)
         {
             return button.JsRuntime.InvokeVoidAsync("blazorGooglePay.attachButton", elemRef, button.JsObjectRef);
         }
