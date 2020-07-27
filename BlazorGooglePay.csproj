@@ -7,7 +7,7 @@
         <WarningsAsErrors>CS8600;CS8602;CS8603;CS8618;CS8625</WarningsAsErrors>
         <LangVersion>8</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>0.2.0</PackageVersion>
+        <PackageVersion>0.2.1</PackageVersion>
         <Title>BlazorGooglePay</Title>
         <Authors>redradist</Authors>
         <Description>Blazor wrapper around GooglePay Js library</Description>
