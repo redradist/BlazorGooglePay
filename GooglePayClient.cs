@@ -7,8 +7,8 @@ namespace BlazorGooglePay
 {
     public class GooglePayClient : IAsyncDisposable
     {
-        private IJSRuntime _jsRuntime;
-        private JsRuntimeObjectRef _jsObjectRef;
+        protected internal IJSRuntime _jsRuntime;
+        protected internal JsRuntimeObjectRef _jsObjectRef;
         
         public event Func<object, GooglePayButton, ValueTask<bool>>? ButtonClicked;
         
@@ -18,7 +18,8 @@ namespace BlazorGooglePay
             _jsObjectRef = jsObjectRef;
         }
 
-        public async ValueTask<GooglePayButton> CreateButtonAsync(GoogleButtonType type)
+        public async ValueTask<GooglePayButton> CreateButtonAsync(GoogleButtonType type,
+                                                                  GooglePayButtonColor? color = null)
         {
             var button = new GooglePayButton(_jsRuntime);
             var callback = CallBackInteropWrapper.Create(async () =>
@@ -34,7 +35,8 @@ namespace BlazorGooglePay
                 "blazorGooglePay.createButton",
                 _jsObjectRef,
                 callback,
-                type);
+                type,
+                color);
             return button;
         }
         

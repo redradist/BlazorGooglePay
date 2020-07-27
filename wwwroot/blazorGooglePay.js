@@ -277,10 +277,12 @@
             return response;
         }
 
-        this.createButton = function(paymentsClient, onGooglePaymentButtonClicked, buttonType) {
+        this.createButton = function(paymentsClient, onGooglePaymentButtonClicked, buttonType, buttonColor) {
+            console.log(`buttonColor is ${buttonColor}`);
             const button = paymentsClient.createButton({
                 onClick: onGooglePaymentButtonClicked,
                 buttonType: buttonType,
+                buttonColor: buttonColor === null ? undefined : buttonColor,
             });
             return browserInterop.storeObjectRef(button);
         }

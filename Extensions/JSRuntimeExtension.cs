@@ -3,13 +3,9 @@ using System.Threading.Tasks;
 using BrowserInterop.Extensions;
 using Microsoft.JSInterop;
 
-namespace BlazorGooglePay
+namespace BlazorGooglePay.Extensions
 {
-    using ProcessPaymentCallback = Func<string, ValueTask>;
-    using DisplayShippingOptionsCallback = Func<GooglePayShippingAddress, ValueTask<GooglePayDisplayShippingOptions>>;
-    using CalculateTransactionInfoCallback = Func<GooglePaySelectedShippingOption, ValueTask<GooglePayTransactionInfo>>;
-
-    public static class JSRuntimeExtensions
+    public static class JSRuntimeExtension
     {
         private class GooglePayShippingAddressJsInfo
         {
@@ -29,9 +25,9 @@ namespace BlazorGooglePay
             this IJSRuntime jsRuntime,
             GooglePayEnvironment? env = null,
             GooglePayMerchantInfo? merchantInfo = null,
-            ProcessPaymentCallback? processPaymentCallback = null,
-            DisplayShippingOptionsCallback? displayShippingOptionsCallback = null,
-            CalculateTransactionInfoCallback? calculateTransactionInfoCallback = null)
+            Func<string, ValueTask>? processPaymentCallback = null,
+            Func<GooglePayShippingAddress, ValueTask<GooglePayDisplayShippingOptions>>? displayShippingOptionsCallback = null,
+            Func<GooglePaySelectedShippingOption, ValueTask<GooglePayTransactionInfo>>? calculateTransactionInfoCallback = null)
         {
             if (_client != null)
             {
