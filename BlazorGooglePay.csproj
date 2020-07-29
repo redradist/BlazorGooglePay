@@ -18,11 +18,14 @@
         <Copyright>2020-Present Denis Kotov, redradist@gmail.com</Copyright>
         <PackageProjectUrl>https://github.com/redradist/Blazor.GooglePay</PackageProjectUrl>
         <PackageId>BlazorGooglePay</PackageId>
+        <Nullable>enable</Nullable>
+        <WarningsAsErrors>CS8600;CS8602;CS8603;CS8618;CS8625</WarningsAsErrors>
+        <LangVersion>8</LangVersion>
     </PropertyGroup>
 
 
     <ItemGroup>
-        <PackageReference Include="BrowserInterop" Version="1.0.2" />
+        <PackageReference Include="BrowserInterop" Version="1.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.0-preview.6.20312.15" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.0-preview.6.20312.15" />
     </ItemGroup>

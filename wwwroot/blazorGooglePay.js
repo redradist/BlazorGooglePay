@@ -140,22 +140,6 @@
                 customPaymentProps);
             return new GooglePaymentDataRequest(props);
         }
-
-        function setDisplayShippingOptions(displayShippingOptions) {
-            this.displayShippingOptions = displayShippingOptions;
-        }
-
-        function getDisplayShippingOptions() {
-            return this.displayShippingOptions;
-        }
-        
-        function setCalculateTransactionInfo(transactionInfo) {
-            this.transactionInfo = transactionInfo;
-        }
-
-        function getCalculateTransactionInfo() {
-            return this.transactionInfo;
-        }
         
         /**
          * Configure support for the Google Pay API
@@ -194,7 +178,7 @@
                 environment,
                 merchantInfo,
                 processPaymentCallback,
-                displayShippingOptionsCallback,
+                getDisplayShippingOptionsCallback,
                 calculateTransactionInfoCallback) {
             let paymentsClient;
             let paymentsClientProps = {
@@ -208,7 +192,7 @@
                     return await this.onPaymentAuthorized(paymentsClient, paymentData)
                 };
             }
-            if (displayShippingOptionsCallback && calculateTransactionInfoCallback) {
+            if (getDisplayShippingOptionsCallback && calculateTransactionInfoCallback) {
                 if (paymentsClientProps.paymentDataCallbacks === undefined) {
                     paymentsClientProps.paymentDataCallbacks = {};
                 }
@@ -223,14 +207,8 @@
                 processPayment: processPaymentCallback
             };
             paymentsClient.$BlazorGooglePay.paymentDataChanged = {
-                getDisplayShippingOptions: async function(shippingAddressJsObjRef) {
-                    await displayShippingOptionsCallback(shippingAddressJsObjRef);
-                    return paymentsClient.$BlazorGooglePay.getDisplayShippingOptions();
-                },
-                calculateTransactionInfo: async function(shippingAddressJsObjRef) {
-                    await calculateTransactionInfoCallback(shippingAddressJsObjRef);
-                    return paymentsClient.$BlazorGooglePay.getCalculateTransactionInfo();
-                },
+                getDisplayShippingOptions: getDisplayShippingOptionsCallback,
+                calculateTransactionInfo: calculateTransactionInfoCallback,
             };
             paymentsClient.$BlazorGooglePay.baseCardPaymentMethod = Object.assign({}, defaultBaseCardPaymentMethod);
             paymentsClient.$BlazorGooglePay.getBaseCardPaymentMethod = getBaseCardPaymentMethod;
@@ -255,10 +233,6 @@
             paymentsClient.$BlazorGooglePay.getGatewayInfo = getGatewayInfo;
             paymentsClient.$BlazorGooglePay.getMerchantInfo = getMerchantInfo;
             paymentsClient.$BlazorGooglePay.getTokenizationSpecification = getTokenizationSpecification;
-            paymentsClient.$BlazorGooglePay.setDisplayShippingOptions = setDisplayShippingOptions;
-            paymentsClient.$BlazorGooglePay.getDisplayShippingOptions = getDisplayShippingOptions;
-            paymentsClient.$BlazorGooglePay.setCalculateTransactionInfo = setCalculateTransactionInfo;
-            paymentsClient.$BlazorGooglePay.getCalculateTransactionInfo = getCalculateTransactionInfo;
             let jsObjectRef = browserInterop.storeObjectRef(paymentsClient);
             paymentsClient.$BlazorGooglePay.jsObjectRef = jsObjectRef;
             return jsObjectRef;
@@ -323,14 +297,6 @@
             return paymentsClient.$BlazorGooglePay.getMerchantInfo();
         }
 
-        this.setDisplayShippingOptions = function (paymentsClient, displayShippingOptions) {
-            paymentsClient.$BlazorGooglePay.setDisplayShippingOptions(displayShippingOptions);
-        }
-
-        this.setCalculateTransactionInfo = function (paymentsClient, transactionInfo) {
-            paymentsClient.$BlazorGooglePay.setCalculateTransactionInfo(transactionInfo);
-        }
-        
         /**
          * Prefetch payment data to improve performance
          *
@@ -397,10 +363,7 @@
                     if (shippingAddress.administrativeArea === "NJ")  {
                         paymentDataRequestUpdate.error = getGoogleUnserviceableAddressError();
                     } else {
-                        paymentDataRequestUpdate.newShippingOptionParameters = await paymentsClient.$BlazorGooglePay.paymentDataChanged.getDisplayShippingOptions({
-                            jsObjectRef: paymentsClient.$BlazorGooglePay.jsObjectRef,
-                            shippingAddress,
-                        });
+                        paymentDataRequestUpdate.newShippingOptionParameters = await paymentsClient.$BlazorGooglePay.paymentDataChanged.getDisplayShippingOptions(shippingAddress);
                         
                         let selectedShippingOptionId = paymentDataRequestUpdate.newShippingOptionParameters.defaultSelectedOptionId;
                         paymentDataRequestUpdate.newTransactionInfo = await paymentsClient.$BlazorGooglePay.paymentDataChanged.calculateTransactionInfo({
@@ -413,11 +376,8 @@
                     }
                 } else if (intermediatePaymentData.callbackTrigger === "SHIPPING_OPTION") {
                     paymentDataRequestUpdate.newTransactionInfo = await paymentsClient.$BlazorGooglePay.paymentDataChanged.calculateTransactionInfo({
-                        jsObjectRef: paymentsClient.$BlazorGooglePay.jsObjectRef,
-                        selectedShippingOption: {
-                            shippingAddress,
-                            shippingOptionId: shippingOptionData.id
-                        }
+                        shippingAddress,
+                        shippingOptionId: shippingOptionData.id
                     });
                 }
 

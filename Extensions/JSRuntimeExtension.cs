@@ -7,18 +7,6 @@ namespace BlazorGooglePay.Extensions
 {
     public static class JSRuntimeExtension
     {
-        private class GooglePayShippingAddressJsInfo
-        {
-            public JsRuntimeObjectRef JsObjectRef { get; set; } = null!;
-            public GooglePayShippingAddress? ShippingAddress { get; set; }
-        }
-        
-        private class GooglePaySelectedShippingOptionJsInfo
-        {
-            public JsRuntimeObjectRef JsObjectRef { get; set; } = null!;
-            public GooglePaySelectedShippingOption? SelectedShippingOption { get; set; }
-        }
-        
         private static GooglePayClient? _client;
         
         public static async ValueTask<GooglePayClient> GetGooglePayClientAsync(
@@ -26,7 +14,7 @@ namespace BlazorGooglePay.Extensions
             GooglePayEnvironment? env = null,
             GooglePayMerchantInfo? merchantInfo = null,
             Func<string, ValueTask>? processPaymentCallback = null,
-            Func<GooglePayShippingAddress, ValueTask<GooglePayDisplayShippingOptions>>? displayShippingOptionsCallback = null,
+            Func<GooglePayShippingAddress, ValueTask<GooglePayDisplayShippingOptions>>? getDisplayShippingOptionsCallback = null,
             Func<GooglePaySelectedShippingOption, ValueTask<GooglePayTransactionInfo>>? calculateTransactionInfoCallback = null)
         {
             if (_client != null)
@@ -47,36 +35,25 @@ namespace BlazorGooglePay.Extensions
                     await processPaymentCallback(transactionToken);
                 });
             }
-            CallBackInteropWrapper? displayShippingOptionsCallbackWrapper = null;
-            if (displayShippingOptionsCallback != null)
+            CallBackInteropWrapper? getDisplayShippingOptionsCallbackWrapper = null;
+            if (getDisplayShippingOptionsCallback != null)
             {
-                displayShippingOptionsCallbackWrapper = CallBackInteropWrapper.Create(async (GooglePayShippingAddressJsInfo shippingAddress) =>
-                {
-                    var displayShippingOptions = await displayShippingOptionsCallback(shippingAddress.ShippingAddress);
-                    await jsRuntime.InvokeAsync<JsRuntimeObjectRef>(
-                        "blazorGooglePay.setDisplayShippingOptions",
-                        shippingAddress.JsObjectRef,
-                        displayShippingOptions);
-                });
+                getDisplayShippingOptionsCallbackWrapper = CallBackInteropWrapper.CreateWithResult(
+                    (GooglePayShippingAddress? shippingAddress) => getDisplayShippingOptionsCallback(shippingAddress)
+                );
             }
             CallBackInteropWrapper? calculateTransactionInfoCallbackWrapper = null;
             if (calculateTransactionInfoCallback != null)
             {
-                calculateTransactionInfoCallbackWrapper = CallBackInteropWrapper.Create(async (GooglePaySelectedShippingOptionJsInfo selectedShippingOption) =>
-                {
-                    var calculateTransactionInfo = await calculateTransactionInfoCallback(selectedShippingOption.SelectedShippingOption);
-                    await jsRuntime.InvokeAsync<JsRuntimeObjectRef>(
-                        "blazorGooglePay.setCalculateTransactionInfo",
-                        selectedShippingOption.JsObjectRef,
-                        calculateTransactionInfo);
-                });
+                calculateTransactionInfoCallbackWrapper = CallBackInteropWrapper.CreateWithResult(
+                    (GooglePaySelectedShippingOption? selectedShippingOption) => calculateTransactionInfoCallback(selectedShippingOption));
             }
             var jsObjRef = await jsRuntime.InvokeAsync<JsRuntimeObjectRef>(
                 "blazorGooglePay.getGooglePaymentsClient",
                 env,
                 merchantInfo,
                 processPaymentCallbackWrapper,
-                displayShippingOptionsCallbackWrapper,
+                getDisplayShippingOptionsCallbackWrapper,
                 calculateTransactionInfoCallbackWrapper);
             _client = new GooglePayClient(jsRuntime, jsObjRef);
             return _client; 
