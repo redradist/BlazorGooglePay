@@ -10,12 +10,18 @@ namespace BlazorGooglePay
     {
         protected internal IJSRuntime JsRuntime { get; set; }
         protected internal JsRuntimeObjectRef JsObjectRef { get; set; } = null!;
+        public GoogleButtonType Type { get; }
+        public GooglePayButtonColor? Color { get; } = null;
 
         public event Func<object, bool>? Clicked;
         
-        internal GooglePayButton(IJSRuntime jsRuntime)
+        internal GooglePayButton(IJSRuntime jsRuntime,
+                                 GoogleButtonType type,
+                                 GooglePayButtonColor? color = null)
         {
             JsRuntime = jsRuntime;
+            Type = type;
+            Color = color;
         }
 
         public ValueTask AttachToAsync(ElementReference elemRef)

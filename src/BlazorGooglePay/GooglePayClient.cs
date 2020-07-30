@@ -21,7 +21,7 @@ namespace BlazorGooglePay
         public async ValueTask<GooglePayButton> CreateButtonAsync(GoogleButtonType type,
                                                                   GooglePayButtonColor? color = null)
         {
-            var button = new GooglePayButton(_jsRuntime);
+            var button = new GooglePayButton(_jsRuntime, type, color);
             var callback = CallBackInteropWrapper.Create(async () =>
             {
                 var isHandled = await OnButtonClicked(button);
