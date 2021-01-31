@@ -1,0 +1,14 @@
+[
+  {
+    "type": "Razor Class Library",
+    "name": "BlazorGooglePay"
+  },
+  {
+    "type": "style",
+    "url": "_content/MatBlazor/dist/matBlazor.css"
+  },
+  {
+    "type": "script",
+    "url": "_content/MatBlazor/dist/matBlazor.js"
+  }
+]

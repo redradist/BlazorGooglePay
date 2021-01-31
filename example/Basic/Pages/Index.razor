@@ -1,0 +1,124 @@
+﻿@page "/"
+@using System.Diagnostics
+@using System.Threading.Tasks
+@using BlazorGooglePay
+@using BlazorGooglePay.Extensions
+@using Microsoft.AspNetCore.Components
+@using System.Collections.Generic
+@inject IJSRuntime JSRuntime
+
+<h1>Hello, BlazorGooglePay!</h1>
+
+<div @ref="refer"></div>
+
+@* <BlazorGooglePayButton Type="@GoogleButtonType.Long" /> *@
+
+@code {
+    ElementReference refer;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var client = await JSRuntime.GetGooglePayClientAsync(
+            merchantInfo: new GooglePayMerchantInfo()
+            {
+                MerchantId = "01234567890123456789",
+                MerchantName = "Example Merchant",
+            },
+            processPaymentCallback: async token =>
+            {
+                Debug.WriteLine($"processPaymentCallback is {token}");
+            },
+            getDisplayShippingOptionsCallback: async address =>
+            {
+                return new GooglePayDisplayShippingOptions()
+                {
+                    DefaultSelectedOptionId = "shipping-002",
+                    ShippingOptions = new List<GooglePayShippingOption>()
+                    {
+                        new GooglePayShippingOption()
+                        {
+                            Id = "shipping-001",
+                            Label = "Free shipping",
+                            Description = "Testing",
+                        },
+                        new GooglePayShippingOption()
+                        {
+                            Id = "shipping-002",
+                            Label = "Free2 shipping",
+                            Description = "Testing",
+                        }
+                    },
+                };
+            },
+            calculateTransactionInfoCallback: async option =>
+            {
+                return new GooglePayTransactionInfo()
+                {
+                    CountryCode = "US",
+                    CurrencyCode = "USD",
+                    TotalPrice = "1.3",
+                    TotalPriceStatus = "FINAL",
+                    TotalPriceLabel = "TOTAL",
+                };
+            });
+        var res = await client.IsReadyToPayAsync();
+        if (res.Result)
+        {
+            Debug.WriteLine("Is ready ...");
+            Debug.WriteLine($"res.Result is {res.Result}");
+            var button = await client.CreateButtonAsync(GoogleButtonType.Short);
+            client.ButtonClicked += OnGooglePaymentClicked;
+            button.Clicked += OnGooglePaymentButtonClicked;
+            await refer.AppendChildAsync(button);
+            await button.AttachToAsync(refer);
+            await client.SetAllowedAuthMethodsAsync("PAN_ONLY", "CRYPTOGRAM_3DS");
+            await client.SetAllowedCardNetworksAsync("AMEX", "DISCOVER", "INTERAC", "JCB", "MASTERCARD", "VISA");
+            await client.SetGatewayInfoAsync(new GooglePayGatewayInfo()
+            {
+                Gateway = "example",
+                GatewayMerchantId = "exampleGatewayMerchantId",
+            });
+            await client.SetMerchantInfoAsync(new GooglePayMerchantInfo()
+            {
+                MerchantName = "Example Merchant",
+            });
+            await client.PrefetchGooglePaymentDataAsync("USD");
+        }
+        else
+        {
+            Debug.WriteLine("Is not ready !!");
+        }
+    }
+    
+    private async ValueTask<bool> OnGooglePaymentClicked(object sender, GooglePayButton button)
+    {
+        Debug.WriteLine("OnGooglePaymentClicked");
+        var client = (GooglePayClient) sender;
+        await client.LoadPaymentAsync(new GooglePayTransactionInfo()
+        {
+            CountryCode = "US",
+            TotalPrice = "1.0",
+            CurrencyCode = "USD",
+            TotalPriceStatus = "FINAL",
+            TotalPriceLabel = "TOTAL",
+        },
+        new GooglePayPaymentOptions()
+        {
+            CallbackIntents = new []{"SHIPPING_ADDRESS",  "SHIPPING_OPTION", "PAYMENT_AUTHORIZATION"},
+            ShippingAddressRequired = true,
+            ShippingAddressParameters = new GooglePayShippingAddressOptions()
+            {
+                AllowedCountryCodes = new []{"US"},
+                PhoneNumberRequired = true
+            },
+            ShippingOptionRequired = true,
+        });
+        return true;
+    }
+    
+    private bool OnGooglePaymentButtonClicked(object sender)
+    {
+        Debug.WriteLine("OnGooglePaymentButtonClicked");
+        return false;
+    }
+}
