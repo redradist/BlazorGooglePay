@@ -7,8 +7,6 @@ namespace BlazorGooglePay.Extensions
 {
     public static class JSRuntimeExtension
     {
-        private static GooglePayClient? _client;
-        
         public static async ValueTask<GooglePayClient> GetGooglePayClientAsync(
             this IJSRuntime jsRuntime,
             GooglePayEnvironment? env = null,
@@ -17,11 +15,6 @@ namespace BlazorGooglePay.Extensions
             Func<GooglePayShippingAddress, ValueTask<GooglePayDisplayShippingOptions>>? getDisplayShippingOptionsCallback = null,
             Func<GooglePaySelectedShippingOption, ValueTask<GooglePayTransactionInfo>>? calculateTransactionInfoCallback = null)
         {
-            if (_client != null)
-            {
-                return _client;
-            }
-
             if (env == null)
             {
                 env = GooglePayEnvironment.Test;
@@ -55,8 +48,7 @@ namespace BlazorGooglePay.Extensions
                 processPaymentCallbackWrapper,
                 getDisplayShippingOptionsCallbackWrapper,
                 calculateTransactionInfoCallbackWrapper);
-            _client = new GooglePayClient(jsRuntime, jsObjRef);
-            return _client; 
+            return new GooglePayClient(jsRuntime, jsObjRef);
         }
     }
 }
