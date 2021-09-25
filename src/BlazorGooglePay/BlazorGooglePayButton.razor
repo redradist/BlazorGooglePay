@@ -3,6 +3,7 @@
 @using Microsoft.JSInterop
 @using BlazorGooglePay.Extensions
 @inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
 
 <div @ref=_googlePayDiv></div>
 
@@ -14,9 +15,9 @@
     [Parameter]
     public GooglePayMerchantInfo MerchantInfo { get; set; } = null!;
     [Parameter]
-    public string[] AuthMethods { get; set; } = {"PAN_ONLY", "CRYPTOGRAM_3DS"};
+    public string[] AuthMethods { get; set; } = { "PAN_ONLY", "CRYPTOGRAM_3DS"};
     [Parameter]
-    public string[] CardNetworks { get; set; } = {"AMEX", "DISCOVER", "INTERAC", "JCB", "MASTERCARD", "VISA"};
+    public string[] CardNetworks { get; set; } = { "AMEX", "DISCOVER", "INTERAC", "JCB", "MASTERCARD", "VISA"};
     [Parameter]
     public GooglePayGatewayInfo GatewayInfo { get; set; } = null!;
     [Parameter]
@@ -29,12 +30,12 @@
     public Func<GooglePayShippingAddress, ValueTask<GooglePayDisplayShippingOptions>>? GetDisplayShippingOptionsCallback { get; set; } = null;
     [Parameter]
     public Func<GooglePaySelectedShippingOption, ValueTask<GooglePayTransactionInfo>>? CalculateTransactionInfoCallback { get; set; } = null;
-    
-    ElementReference _googlePayDiv;
 
+    ElementReference _googlePayDiv;
+    GooglePayClient? client=null;
     protected override async Task OnInitializedAsync()
     {
-        var client = await JSRuntime.GetGooglePayClientAsync(
+        client = await JSRuntime.GetGooglePayClientAsync(
             Environment,
             MerchantInfo,
             ProcessPaymentCallback,
@@ -52,5 +53,14 @@
             await client.SetMerchantInfoAsync(MerchantInfo);
             await client.PrefetchGooglePaymentDataAsync(CurrencyCode);
         }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (client != null)
+                await client.DisposeAsync();
+        }
+        catch { }
     }
 }
