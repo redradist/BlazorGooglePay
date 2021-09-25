@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
+        <TargetFramework>net5.0</TargetFramework>
         <RazorLangVersion>3.0</RazorLangVersion>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>CS8600;CS8602;CS8603;CS8618;CS8625</WarningsAsErrors>
@@ -25,9 +25,9 @@
 
 
     <ItemGroup>
-        <PackageReference Include="BrowserInterop" Version="1.1.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.0-preview.6.20312.15" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.0-preview.6.20312.15" />
+        <PackageReference Include="BrowserInterop" Version="1.1.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.10" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.10" />
     </ItemGroup>
 
 
